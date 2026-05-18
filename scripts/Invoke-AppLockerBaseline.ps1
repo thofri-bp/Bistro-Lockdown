@@ -415,7 +415,6 @@ function Apply-PolicyFile {
         [string]$PolicyPath
     )
 
-    $policyXml = Get-Content -Path $PolicyPath -Raw
     $service = Get-Service -Name 'AppIDSvc' -ErrorAction Stop
     if ($service.StartType -ne 'Automatic') {
         Set-Service -Name 'AppIDSvc' -StartupType Automatic
@@ -424,7 +423,7 @@ function Apply-PolicyFile {
         Start-Service -Name 'AppIDSvc'
     }
 
-    Set-AppLockerPolicy -XmlPolicy $policyXml
+    Set-AppLockerPolicy -XmlPolicy $PolicyPath
     Write-Host "AppLocker-Policy angewendet: $PolicyPath" -ForegroundColor Green
 }
 
