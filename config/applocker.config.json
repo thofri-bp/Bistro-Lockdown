@@ -34,16 +34,7 @@
       "description": "Klassische 32-Bit-Installationen."
     }
   ],
-  "allowedFiles": [
-    {
-      "name": "Line-of-business app placeholder",
-      "path": "C:\\Program Files\\Vendor\\BookingApp\\BookingApp.exe",
-      "collections": [
-        "Exe"
-      ],
-      "description": "Beispiel fuer eine explizit freigegebene Fachanwendung."
-    }
-  ],
+  "allowedFiles": [],
   "allowedPublishers": [
     {
       "name": "Microsoft signed applications",
@@ -59,19 +50,6 @@
         "Appx"
       ],
       "description": "Standardregel fuer signierte Microsoft-Komponenten."
-    },
-    {
-      "name": "Vendor updater placeholder",
-      "publisherName": "O=VENDOR GMBH, L=STADT, S=BUNDESLAND, C=DE",
-      "productName": "Vendor Updater",
-      "binaryName": "*",
-      "lowVersion": "*",
-      "highVersion": "*",
-      "collections": [
-        "Exe",
-        "Msi"
-      ],
-      "description": "Beispiel fuer freigegebene Drittanbieter-Updater."
     }
   ]
 }
