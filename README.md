@@ -238,6 +238,76 @@ Wenn AppLocker benoetigte Programme im Audit als problematisch zeigt:
 - bei signierten Updatern eher `allowedPublishers` ergaenzen
 - danach die Policy erneut erzeugen und `ApplyAudit` noch einmal ausfuehren
 
+## Monitoring
+
+Nach `ApplyAudit` oder `ApplyEnforce` kannst du den Zustand des Rechners mit diesen Befehlen schnell pruefen.
+
+### AppLocker-Logs direkt anzeigen
+
+Die letzten EXE- und DLL-Treffer:
+
+```powershell
+Get-WinEvent -LogName 'Microsoft-Windows-AppLocker/EXE and DLL' -MaxEvents 30 |
+    Format-Table TimeCreated, Id, Message -AutoSize
+```
+
+Die letzten MSI- und Skript-Treffer:
+
+```powershell
+Get-WinEvent -LogName 'Microsoft-Windows-AppLocker/MSI and Script' -MaxEvents 30 |
+    Format-Table TimeCreated, Id, Message -AutoSize
+```
+
+Die letzten Packaged-App-Treffer:
+
+```powershell
+Get-WinEvent -LogName 'Microsoft-Windows-AppLocker/Packaged app-Execution' -MaxEvents 30 |
+    Format-Table TimeCreated, Id, Message -AutoSize
+```
+
+### Nur heutige Ereignisse anzeigen
+
+```powershell
+Get-WinEvent -LogName 'Microsoft-Windows-AppLocker/EXE and DLL' |
+    Where-Object { $_.TimeCreated -ge (Get-Date).Date } |
+    Format-Table TimeCreated, Id, Message -AutoSize
+```
+
+### Effektive Policy exportieren
+
+Damit siehst du, was aktuell wirklich auf dem Rechner aktiv ist:
+
+```powershell
+.\scripts\Invoke-AppLockerBaseline.ps1 -Mode ExportEffectivePolicy
+```
+
+### Dienststatus pruefen
+
+AppLocker braucht den Dienst `Application Identity`.
+
+```powershell
+Get-Service AppIDSvc
+```
+
+Wenn alles passt, sollte der Dienst laufen oder mindestens korrekt fuer den Start vorbereitet sein.
+
+### Praktischer Kurzablauf fuer die Kontrolle
+
+```powershell
+.\scripts\Invoke-AppLockerBaseline.ps1 -Mode ExportEffectivePolicy
+Get-Service AppIDSvc
+Get-WinEvent -LogName 'Microsoft-Windows-AppLocker/EXE and DLL' -MaxEvents 30 |
+    Format-Table TimeCreated, Id, Message -AutoSize
+```
+
+### Worauf du im Monitoring achten solltest
+
+- Welche Programme wuerden blockiert oder wurden blockiert
+- ob die Buchungssoftware komplett startet
+- ob Drucker-, Scanner- oder Kartenleser-Tools beteiligt sind
+- ob Updater oder Hintergrunddienste aus ungewoehnlichen Pfaden laufen
+- ob versehentlich etwas aus Benutzerprofilen gestartet werden soll
+
 ## Schritt 7: Effektive Policy exportieren
 
 Wenn du dokumentieren willst, was aktuell aktiv ist:
@@ -319,4 +389,28 @@ Vor produktivem Rollout sollte immer ein lokaler Administratorzugang verfuegbar 
 - ein dokumentierter Vor-Ort-Zugang
 - vorheriger Test auf einem baugleichen Geraet
 
-Falls du spaeter einen expliziten Rueckbau- oder Reset-Ablauf im Skript haben willst, kann ich den als zusaetzlichen Modus noch einbauen.
+### AppLocker komplett rueckgaengig machen
+
+Laut Microsoft entfernst du eine lokale AppLocker-Policy, indem du eine leere XML-Policy setzt. Das in einer PowerShell mit Administratorrechten:
+
+```powershell
+@'
+<AppLockerPolicy Version="1" />
+'@ | Set-Content -Path .\clear.xml -Encoding utf8
+
+Set-AppLockerPolicy -XmlPolicy .\clear.xml
+sc.exe config appidsvc start= demand
+sc.exe stop appidsvc
+```
+
+Optional kannst du danach noch die erzeugte `clear.xml` wieder loeschen:
+
+```powershell
+Remove-Item .\clear.xml
+```
+
+Hinweis:
+
+- das entfernt die lokal gesetzte AppLocker-Policy auf diesem Rechner
+- falls Richtlinien per `GPO` oder `MDM` ausgerollt wurden, muessen sie dort entfernt werden
+- Microsoft weist darauf hin, dass lokale und zentral verteilte Policies getrennt behandelt werden
