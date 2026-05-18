@@ -43,6 +43,40 @@ Vor dem Einsatz sollte der Zielrechner diese Punkte erfuellen:
 - mindestens ein Test- oder Referenzrechner, auf dem die benoetigte Buchungssoftware bereits installiert ist
 - Bediener arbeiten mit Standardnutzerkonten
 
+## Wichtige Hinweise vor dem Start
+
+### Immer als Administrator ausfuehren
+
+Das Skript muss in einer `PowerShell mit Administratorrechten` gestartet werden, weil es die lokale AppLocker-Policy des Rechners setzt und den Dienst `Application Identity` verwaltet.
+
+Wenn du das Skript ohne Erhoehung startest, sind typische Folgen:
+
+- `Zugriff verweigert`
+- `AppIDSvc` kann nicht konfiguriert werden
+- die Policy laesst sich nicht setzen
+
+### Ausfuehrung von Skripten erlauben
+
+Viele Rechner blockieren PowerShell-Skripte standardmaessig ueber die Execution Policy. Fuer den Test reicht in der Regel:
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+```
+
+Das gilt nur fuer das aktuelle PowerShell-Fenster. Alternativ kannst du das Skript direkt so starten:
+
+```powershell
+powershell.exe -ExecutionPolicy Bypass -File .\scripts\Invoke-AppLockerBaseline.ps1 -Mode ValidateConfig
+```
+
+### PowerShell-Version
+
+Das Skript ist auf `Windows PowerShell 5.1` und neuere PowerShell-Versionen ausgelegt. Falls auf dem Rechner eine aeltere oder restriktive Umgebung aktiv ist, kannst du die Version so pruefen:
+
+```powershell
+$PSVersionTable
+```
+
 ## Sicherheitsmodell
 
 Das Skript arbeitet jetzt ohne separate Benutzergruppe:
@@ -365,6 +399,68 @@ Benutzernahe Verzeichnisse werden in dieser Variante nicht ueber explizite Deny-
 - keine breiten Freigaben fuer `C:\Users\*` oder aehnliche benutzerschreibbare Pfade setzen
 
 ## Troubleshooting
+
+### Das Ausfuehren von Skripts ist auf dem Rechner untersagt
+
+Dann blockiert in der Regel die PowerShell-Execution-Policy. In einer PowerShell mit Administratorrechten:
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+```
+
+Danach das Skript im selben Fenster erneut starten.
+
+Wenn das nicht reicht:
+
+```powershell
+Get-ExecutionPolicy -List
+```
+
+Wenn dort `MachinePolicy` oder `UserPolicy` gesetzt ist, kommt die Sperre wahrscheinlich aus einer Gruppenrichtlinie.
+
+### `AppIDSvc` kann nicht konfiguriert werden, Zugriff verweigert
+
+Das deutet fast immer darauf hin, dass die PowerShell nicht wirklich erhoeht gestartet wurde oder dass der Dienst durch eine Richtlinie geschuetzt ist.
+
+Pruefen:
+
+```powershell
+Get-Service AppIDSvc
+sc.exe qc AppIDSvc
+net session
+```
+
+Wenn `net session` mit `Systemfehler 5` endet, ist das Fenster nicht erhoeht.
+
+### `ConvertFrom-Json`: Parameter `Depth` wurde nicht gefunden
+
+Das tritt typischerweise unter `Windows PowerShell 5.1` auf. Das Skript ist dafuer inzwischen angepasst. Wenn die Meldung trotzdem erscheint, sicherstellen, dass wirklich die aktuelle Version des Skripts verwendet wird.
+
+### `resolving file exception` beim Anwenden der Policy
+
+Dieser Fehler trat auf, wenn `Set-AppLockerPolicy` nicht mit einem XML-Dateipfad, sondern mit XML-Inhalt gefuettert wurde. Das Skript wurde dafuer korrigiert.
+
+Wenn die Meldung erneut auftaucht:
+
+- sicherstellen, dass die aktuelle Skriptversion verwendet wird
+- `GeneratePolicy` ausfuehren und pruefen, ob die XML-Datei wirklich erzeugt wurde
+- danach `ApplyAudit` erneut starten
+
+### `ValidateConfig` funktioniert, aber `ApplyAudit` nicht
+
+Dann liegt das Problem meist nicht an der JSON, sondern an einem der folgenden Punkte:
+
+- PowerShell nicht als Administrator gestartet
+- `Application Identity`-Dienst kann nicht gesetzt oder gestartet werden
+- lokale Sicherheitsrichtlinie oder Domaenenrichtlinie blockiert den Vorgang
+- Pfad zur XML-Datei ist ungueltig oder nicht erreichbar
+
+Ein sinnvoller Schnellcheck ist:
+
+```powershell
+.\scripts\Invoke-AppLockerBaseline.ps1 -Mode GeneratePolicy -OutputPath .\out\applocker-preview.xml
+Get-Service AppIDSvc
+```
 
 ### Eine benoetigte Anwendung startet im Audit nicht sauber durch
 
