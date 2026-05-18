@@ -1,0 +1,77 @@
+{
+  "modeDefaults": {
+    "defaultMode": "AuditOnly"
+  },
+  "allowedPaths": [
+    {
+      "name": "Windows",
+      "path": "%WINDIR%\\*",
+      "collections": [
+        "Exe",
+        "Msi",
+        "Script"
+      ],
+      "description": "Windows-Bestandteile und systemnahe Tools."
+    },
+    {
+      "name": "Program Files",
+      "path": "%PROGRAMFILES%\\*",
+      "collections": [
+        "Exe",
+        "Msi",
+        "Script"
+      ],
+      "description": "Klassische 64-Bit-Installationen."
+    },
+    {
+      "name": "Program Files x86",
+      "path": "%PROGRAMFILES(X86)%\\*",
+      "collections": [
+        "Exe",
+        "Msi",
+        "Script"
+      ],
+      "description": "Klassische 32-Bit-Installationen."
+    }
+  ],
+  "allowedFiles": [
+    {
+      "name": "Line-of-business app placeholder",
+      "path": "C:\\Program Files\\Vendor\\BookingApp\\BookingApp.exe",
+      "collections": [
+        "Exe"
+      ],
+      "description": "Beispiel fuer eine explizit freigegebene Fachanwendung."
+    }
+  ],
+  "allowedPublishers": [
+    {
+      "name": "Microsoft signed applications",
+      "publisherName": "O=MICROSOFT CORPORATION, L=REDMOND, S=WASHINGTON, C=US",
+      "productName": "*",
+      "binaryName": "*",
+      "lowVersion": "*",
+      "highVersion": "*",
+      "collections": [
+        "Exe",
+        "Msi",
+        "Script",
+        "Appx"
+      ],
+      "description": "Standardregel fuer signierte Microsoft-Komponenten."
+    },
+    {
+      "name": "Vendor updater placeholder",
+      "publisherName": "O=VENDOR GMBH, L=STADT, S=BUNDESLAND, C=DE",
+      "productName": "Vendor Updater",
+      "binaryName": "*",
+      "lowVersion": "*",
+      "highVersion": "*",
+      "collections": [
+        "Exe",
+        "Msi"
+      ],
+      "description": "Beispiel fuer freigegebene Drittanbieter-Updater."
+    }
+  ]
+}
