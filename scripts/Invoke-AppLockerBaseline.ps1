@@ -55,7 +55,14 @@ function Load-Config {
         throw "Konfigurationsdatei nicht gefunden: $Path"
     }
 
-    return (Get-Content -Path $Path -Raw | ConvertFrom-Json -Depth 10)
+    $jsonContent = Get-Content -Path $Path -Raw
+    $convertFromJsonCommand = Get-Command -Name ConvertFrom-Json
+
+    if ($convertFromJsonCommand.Parameters.ContainsKey('Depth')) {
+        return ($jsonContent | ConvertFrom-Json -Depth 10)
+    }
+
+    return ($jsonContent | ConvertFrom-Json)
 }
 
 function Validate-ConfigObject {
