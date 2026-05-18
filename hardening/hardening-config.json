@@ -1,0 +1,35 @@
+{
+  "CompanyName": "Schwarzlichhof",
+  "MachineRole": "Standalone",
+  "SupportAdminAccount": "SupportAdmin",
+  "BrowserExecutable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "Schedule": {
+    "TaskName": "Schwarzlichhof Windows Hardening",
+    "RepetitionHours": 6
+  },
+  "AppLocker": {
+    "PolicyPath": ".\\applocker-policy.xml",
+    "AllowListPath": ".\\apps-allowlist.json",
+    "ApplyPolicyOnADManagedMachines": false,
+    "EnforcementMode": "AuditOnly"
+  },
+  "TimeService": {
+    "StandaloneNtpServer": "time.windows.com,0x8",
+    "ResyncOnApply": true
+  },
+  "Security": {
+    "DisableUsbStorage": true,
+    "DisableAutoRun": true,
+    "DisableCommandPrompt": true,
+    "DisablePowerShellForStandardUsers": true,
+    "DisableRegistryTools": true,
+    "DisableTaskManager": true,
+    "DisableMmcForStandardUsers": true,
+    "RequireFirewallEnabled": true,
+    "RequireDefenderRealtimeMonitoring": true
+  },
+  "Paths": {
+    "InstallRoot": "C:\\ProgramData\\Schwarzlichhof\\Hardening",
+    "LogRoot": "C:\\ProgramData\\Schwarzlichhof\\Logs"
+  }
+}
