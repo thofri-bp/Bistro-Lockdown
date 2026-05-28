@@ -315,6 +315,65 @@ Damit siehst du, was aktuell wirklich auf dem Rechner aktiv ist:
 .\scripts\Invoke-AppLockerBaseline.ps1 -Mode ExportEffectivePolicy
 ```
 
+### Ganze Woche fuer Auswertung exportieren
+
+Wenn du die Ergebnisse gesammelt mit mir oder intern auswerten willst, ist dieser Export am praktischsten. Er legt einen Zeitstempel-Ordner an und schreibt die letzten 7 Tage als CSV sowie die aktuelle Policy als XML hinein.
+
+```powershell
+$since = (Get-Date).AddDays(-7)
+$outDir = ".\analysis-$(Get-Date -Format 'yyyy-MM-dd-HHmmss')"
+New-Item -ItemType Directory -Path $outDir -Force | Out-Null
+
+.\scripts\Invoke-AppLockerBaseline.ps1 -Mode ExportEffectivePolicy -OutputPath (Join-Path $outDir 'effective-policy.xml')
+
+Get-WinEvent -LogName 'Microsoft-Windows-AppLocker/EXE and DLL' |
+    Where-Object { $_.TimeCreated -ge $since } |
+    Select-Object TimeCreated, Id, LevelDisplayName, ProviderName, MachineName, Message |
+    Export-Csv -Path (Join-Path $outDir 'applocker-exe-dll-last7days.csv') -NoTypeInformation -Encoding UTF8
+
+Get-WinEvent -LogName 'Microsoft-Windows-AppLocker/MSI and Script' |
+    Where-Object { $_.TimeCreated -ge $since } |
+    Select-Object TimeCreated, Id, LevelDisplayName, ProviderName, MachineName, Message |
+    Export-Csv -Path (Join-Path $outDir 'applocker-msi-script-last7days.csv') -NoTypeInformation -Encoding UTF8
+
+Get-WinEvent -LogName 'Microsoft-Windows-AppLocker/Packaged app-Execution' |
+    Where-Object { $_.TimeCreated -ge $since } |
+    Select-Object TimeCreated, Id, LevelDisplayName, ProviderName, MachineName, Message |
+    Export-Csv -Path (Join-Path $outDir 'applocker-packagedapps-last7days.csv') -NoTypeInformation -Encoding UTF8
+
+Get-Service AppIDSvc | Select-Object Name, Status, StartType |
+    Export-Csv -Path (Join-Path $outDir 'appidsvc-status.csv') -NoTypeInformation -Encoding UTF8
+
+Write-Host "Auswertung gespeichert in: $outDir"
+```
+
+Fuer die eigentliche Analyse sind meistens diese Dateien am wichtigsten:
+
+- `applocker-exe-dll-last7days.csv`
+- `applocker-msi-script-last7days.csv`
+- `effective-policy.xml`
+
+### Kompakter Export fuer wahrscheinliche Problemfaelle
+
+Wenn du nicht alles sehen willst, sondern erst einmal die auffaelligeren Treffer, kannst du die Events der letzten 7 Tage nach typischen Schluesselwoertern filtern:
+
+```powershell
+$since = (Get-Date).AddDays(-7)
+$pattern = 'Downloads|Desktop|Temp|AppData|Denied|blocked|prevented|MSI|Script|exe'
+
+Get-WinEvent -LogName 'Microsoft-Windows-AppLocker/EXE and DLL' |
+    Where-Object { $_.TimeCreated -ge $since -and $_.Message -match $pattern } |
+    Select-Object TimeCreated, Id, Message |
+    Export-Csv -Path .\applocker-problemfocus-exe.csv -NoTypeInformation -Encoding UTF8
+
+Get-WinEvent -LogName 'Microsoft-Windows-AppLocker/MSI and Script' |
+    Where-Object { $_.TimeCreated -ge $since -and $_.Message -match $pattern } |
+    Select-Object TimeCreated, Id, Message |
+    Export-Csv -Path .\applocker-problemfocus-msi-script.csv -NoTypeInformation -Encoding UTF8
+```
+
+Der volle Export ist besser fuer eine saubere Auswertung. Der kompakte Export ist eher ein schneller erster Blick.
+
 ### Dienststatus pruefen
 
 AppLocker braucht den Dienst `Application Identity`.
