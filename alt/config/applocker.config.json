@@ -41,7 +41,7 @@
       "publisherName": "O=MICROSOFT CORPORATION, L=REDMOND, S=WASHINGTON, C=US",
       "productName": "*",
       "binaryName": "*",
-      "lowVersion": "0.0.0.0",
+      "lowVersion": "*",
       "highVersion": "*",
       "collections": [
         "Exe",

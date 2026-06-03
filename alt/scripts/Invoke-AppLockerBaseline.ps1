@@ -251,16 +251,9 @@ function Add-PublisherRule {
     [void]$condition.SetAttribute('ProductName', $(if ($Publisher.productName) { $Publisher.productName } else { '*' }))
     [void]$condition.SetAttribute('BinaryName', $(if ($Publisher.binaryName) { $Publisher.binaryName } else { '*' }))
 
-    $lowVersion = if ($Publisher.lowVersion) { $Publisher.lowVersion } else { '0.0.0.0' }
-    $highVersion = if ($Publisher.highVersion) { $Publisher.highVersion } else { '*' }
-
-    if ($lowVersion -eq '*') {
-        $lowVersion = '0.0.0.0'
-    }
-
     $range = $Document.CreateElement('BinaryVersionRange')
-    [void]$range.SetAttribute('LowSection', $lowVersion)
-    [void]$range.SetAttribute('HighSection', $highVersion)
+    [void]$range.SetAttribute('LowSection', $(if ($Publisher.lowVersion) { $Publisher.lowVersion } else { '*' }))
+    [void]$range.SetAttribute('HighSection', $(if ($Publisher.highVersion) { $Publisher.highVersion } else { '*' }))
     [void]$condition.AppendChild($range)
     [void]$conditions.AppendChild($condition)
     [void]$rule.AppendChild($conditions)
