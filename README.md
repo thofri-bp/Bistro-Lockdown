@@ -33,6 +33,8 @@ Die Idee dahinter:
   Das Hauptskript. Es validiert die Konfiguration, erzeugt eine AppLocker-XML, wendet Audit- oder Enforce-Policies an und exportiert die effektive Policy.
 - `config/applocker.config.json`
   Die zentrale Regeldefinition fuer erlaubte Pfade, einzelne Dateien und signierte Publisher.
+- `config/applocker.v2.config.json`
+  Eine schaerfere zweite Iteration auf Basis der ersten Audit-Woche mit gezielten Nicht-Microsoft-Freigaben.
 
 ## Voraussetzungen
 
@@ -110,6 +112,13 @@ Wenn spaeter Programme fehlen, ist das nicht schlimm. Du kannst die JSON erweite
 ## Schritt 2: Konfiguration bearbeiten
 
 Die Datei `config/applocker.config.json` ist die zentrale Steuerung.
+
+Fuer spaetere Haertung kannst du auch mit einer zweiten Iteration arbeiten:
+
+- `applocker.config.json`
+  Breitere Baseline fuer den ersten sicheren Audit-Lauf
+- `applocker.v2.config.json`
+  Engere Folgeversion mit aus dem Audit abgeleiteten Einzel-Freigaben
 
 ### `modeDefaults`
 
@@ -241,6 +250,12 @@ Dabei passiert:
 - der Dienst `Application Identity` wird bei Bedarf auf `Automatic` gesetzt und gestartet
 - die Policy wird lokal angewendet
 - AppLocker protokolliert, was spaeter blockiert worden waere
+
+Wenn du bewusst mit einer anderen Konfiguration testen willst, gib sie explizit an:
+
+```powershell
+.\scripts\Invoke-AppLockerBaseline.ps1 -Mode ApplyAudit -ConfigPath .\config\applocker.v2.config.json
+```
 
 ## Schritt 6: Audit-Ereignisse auswerten
 
@@ -448,6 +463,17 @@ Wenn ein Updater nicht ueber `%PROGRAMFILES%` abgedeckt ist, ist eine Publisher-
 
 Benutzernahe Verzeichnisse werden in dieser Variante nicht ueber explizite Deny-Regeln gesperrt, sondern dadurch abgesichert, dass sie nicht freigegeben werden.
 
+### Zweite Iteration aus Audit-Daten bauen
+
+Ein bewaehrter Weg ist:
+
+- `v1` mit breiterer Baseline eine Woche im Audit laufen lassen
+- daraus die wirklich genutzten Nicht-Microsoft-Programme ableiten
+- diese gezielt in `allowedFiles` oder `allowedPublishers` uebernehmen
+- dann eine `v2` wieder eine Woche im Audit testen
+
+Die mitgelieferte `config/applocker.v2.config.json` ist genau so aufgebaut und basiert auf den im ersten Audit beobachteten Programmen wie Firefox, Adobe Acrobat, Nextcloud und Intel-Hilfsprozessen.
+
 ## Wichtige Hinweise fuer den Produktiveinsatz
 
 - immer zuerst im Audit-Modus testen
@@ -527,6 +553,16 @@ Eventlog pruefen und entscheiden:
 
 - liegt die Datei in einem legitimen Programmpfad, dann `allowedFiles` oder `allowedPaths` anpassen
 - handelt es sich um einen signierten Updater, dann `allowedPublishers` erweitern
+
+### Mein eigenes PowerShell-Skript wuerde im Audit verhindert werden
+
+Das ist bei einer engeren Policy oft erwartbar, wenn das Skript aus einem Benutzerprofil oder Dokumente-Ordner gestartet wird.
+
+Typische Optionen:
+
+- das Admin-Skript bewusst ausserhalb des normalen Benutzerkontexts ausfuehren
+- das Skript aus einem geeigneten Admin-/Tooling-Pfad starten
+- nur echte Betriebssoftware freigeben, nicht automatisch das gesamte Admin-Arbeitsverzeichnis
 
 ### Administratoren werden unerwartet eingeschraenkt
 

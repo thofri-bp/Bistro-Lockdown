@@ -1,0 +1,140 @@
+{
+  "modeDefaults": {
+    "defaultMode": "AuditOnly"
+  },
+  "allowedPaths": [
+    {
+      "name": "Windows",
+      "path": "%WINDIR%\\*",
+      "collections": [
+        "Exe",
+        "Msi",
+        "Script"
+      ],
+      "description": "Windows-Bestandteile und systemnahe Tools."
+    }
+  ],
+  "allowedFiles": [
+    {
+      "name": "Mozilla Firefox",
+      "path": "%PROGRAMFILES%\\Mozilla Firefox\\firefox.exe",
+      "collections": [
+        "Exe"
+      ],
+      "description": "Hauptbrowser laut Audit."
+    },
+    {
+      "name": "Mozilla Firefox Crash Helper",
+      "path": "%PROGRAMFILES%\\Mozilla Firefox\\crashhelper.exe",
+      "collections": [
+        "Exe"
+      ],
+      "description": "Hilfsprozess fuer Firefox."
+    },
+    {
+      "name": "Mozilla Firefox Crash Reporter",
+      "path": "%PROGRAMFILES%\\Mozilla Firefox\\crashreporter.exe",
+      "collections": [
+        "Exe"
+      ],
+      "description": "Fehlerberichtsdienst fuer Firefox."
+    },
+    {
+      "name": "Mozilla Firefox Ping Sender",
+      "path": "%PROGRAMFILES%\\Mozilla Firefox\\pingsender.exe",
+      "collections": [
+        "Exe"
+      ],
+      "description": "Firefox-Hintergrundprozess aus dem Audit."
+    },
+    {
+      "name": "Adobe Acrobat",
+      "path": "%PROGRAMFILES%\\Adobe\\Acrobat DC\\Acrobat\\Acrobat.exe",
+      "collections": [
+        "Exe"
+      ],
+      "description": "Adobe Acrobat Reader/Acrobat Hauptanwendung."
+    },
+    {
+      "name": "Adobe Acrobat CEF",
+      "path": "%PROGRAMFILES%\\Adobe\\Acrobat DC\\Acrobat\\AcroCEF\\AcroCEF.exe",
+      "collections": [
+        "Exe"
+      ],
+      "description": "Webview-/CEF-Komponente fuer Acrobat."
+    },
+    {
+      "name": "Adobe Acrobat Collaboration Sync",
+      "path": "%PROGRAMFILES%\\Adobe\\Acrobat DC\\Acrobat\\AdobeCollabSync.exe",
+      "collections": [
+        "Exe"
+      ],
+      "description": "Adobe Sync-Hilfsprozess aus dem Audit."
+    },
+    {
+      "name": "Adobe Acrobat RDC Notifier",
+      "path": "%PROGRAMFILES%\\Adobe\\Acrobat DC\\Acrobat\\RDCNotificationClient\\FullTrustNotifier.exe",
+      "collections": [
+        "Exe"
+      ],
+      "description": "Adobe Benachrichtigungsprozess."
+    },
+    {
+      "name": "Adobe Acrobat CRLogTransport",
+      "path": "%PROGRAMFILES%\\Adobe\\Acrobat DC\\Acrobat\\CRLogTransport.exe",
+      "collections": [
+        "Exe"
+      ],
+      "description": "Adobe Logging-/Telemetry-Prozess laut Audit."
+    },
+    {
+      "name": "Adobe Acrobat CRWindowsClientService",
+      "path": "%PROGRAMFILES%\\Adobe\\Acrobat DC\\Acrobat\\CRWindowsClientService.exe",
+      "collections": [
+        "Exe"
+      ],
+      "description": "Adobe Client-Service laut Audit."
+    },
+    {
+      "name": "Nextcloud Desktop",
+      "path": "%PROGRAMFILES%\\Nextcloud\\nextcloud.exe",
+      "collections": [
+        "Exe"
+      ],
+      "description": "Nextcloud-Client aus dem Audit."
+    },
+    {
+      "name": "Intel SUR ESRV",
+      "path": "%PROGRAMFILES%\\Intel\\SUR\\QueenCreek\\x64\\esrv.exe",
+      "collections": [
+        "Exe"
+      ],
+      "description": "Intel System Usage Report Dienst laut Audit."
+    },
+    {
+      "name": "Intel Driver and Support Assistant Tray",
+      "path": "%PROGRAMFILES%\\Intel\\Driver and Support Assistant\\x86\\DSATray.exe",
+      "collections": [
+        "Exe"
+      ],
+      "description": "Intel DSA Tray aus dem Audit."
+    }
+  ],
+  "allowedPublishers": [
+    {
+      "name": "Microsoft signed applications",
+      "publisherName": "O=MICROSOFT CORPORATION, L=REDMOND, S=WASHINGTON, C=US",
+      "productName": "*",
+      "binaryName": "*",
+      "lowVersion": "*",
+      "highVersion": "*",
+      "collections": [
+        "Exe",
+        "Msi",
+        "Script",
+        "Appx"
+      ],
+      "description": "Standardregel fuer signierte Microsoft-Komponenten."
+    }
+  ]
+}
